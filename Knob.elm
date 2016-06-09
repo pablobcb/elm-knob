@@ -27,19 +27,18 @@ initialModel =
 
 
 type Msg
-    = Increase
-    | Decrease
+    = ValueChange (Float -> Cmd Msg)
 
 
 
 -- VIEW
 
 
-view : Model -> Html Msg
-view model =
+view : (Float -> Cmd Msg) -> Model -> Html Msg
+view cmdEmmiter model =
     div []
         [ div [] [ text (toString model.value) ]
-        , button [ onClick Increase ] [ Html.text "Click" ]
+        , button [ onClick (ValueChange cmdEmmiter) ] [ Html.text "Click" ]
         ]
 
 
@@ -50,8 +49,9 @@ view model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        Increase ->
-            ( { model | value = model.value + 1 }, Cmd.none )
-
-        Decrease ->
-            ( { model | value = model.value - 1 }, Cmd.none )
+        ValueChange cmdEmmiter ->
+            let
+                newValue =
+                    model.value + 1
+            in
+                ( { model | value = newValue }, cmdEmmiter newValue )

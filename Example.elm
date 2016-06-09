@@ -1,4 +1,4 @@
-module Main exposing (..)
+port module Example exposing (..)
 
 -- where
 
@@ -36,7 +36,9 @@ view : AppModel -> Html Msg
 view model =
     Html.div []
         [ Html.App.map KnobMsg
-            (Knob.view model.knobModel)
+            (Knob.view (\value -> examplePort value)
+                model.knobModel
+            )
         ]
 
 
@@ -64,6 +66,9 @@ update message model =
 subscriptions : AppModel -> Sub Msg
 subscriptions model =
     Sub.none
+
+
+port examplePort : Float -> Cmd msg
 
 
 
