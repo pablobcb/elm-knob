@@ -35,11 +35,7 @@ type Msg
 view : AppModel -> Html Msg
 view model =
     Html.div []
-        [ Html.App.map KnobMsg
-            (Knob.view (\value -> examplePort value)
-                model.knobModel
-            )
-        ]
+        [ Knob.knob KnobMsg examplePort model.knobModel ]
 
 
 
