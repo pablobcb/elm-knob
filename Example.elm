@@ -46,17 +46,16 @@ view model =
 -- UPDATE
 
 
+updateKnob : Knob.Model -> AppModel -> AppModel
+updateKnob knobModel model =
+    { model | knobModel = knobModel }
+
+
 update : Msg -> AppModel -> ( AppModel, Cmd Msg )
 update message model =
     case message of
         KnobMsg subMsg ->
-            let
-                ( updatedKnobModel, knobCmd ) =
-                    Knob.update subMsg model.knobModel
-            in
-                ( { model | knobModel = updatedKnobModel }
-                , Cmd.map KnobMsg knobCmd
-                )
+            Knob.updateMap model subMsg .knobModel updateKnob KnobMsg
 
 
 

@@ -4,6 +4,7 @@ module Knob exposing (..)
 
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
+import Html.App exposing (map)
 import Html.Attributes exposing (draggable, style)
 import Json.Decode as Json exposing (..)
 
@@ -67,6 +68,30 @@ view cmdEmmiter model =
             , style knobStyle
             ]
             [ Html.text (toString model.value) ]
+
+
+knob : (Msg -> a) -> (Int -> Cmd Msg) -> Model -> Html a
+knob knobMsg cmdEmmiter model =
+    Html.App.map knobMsg
+        <| view (\value -> value |> cmdEmmiter)
+            model
+
+
+updateMap :
+    parentModel
+    -> Msg
+    -> (parentModel -> Model)
+    -> (Model -> parentModel -> parentModel)
+    -> (Msg -> c)
+    -> ( parentModel, Cmd c )
+updateMap parentModel msg getField reduxor parentMsg =
+    let
+        ( updatedKnobModel, knobCmd ) =
+            update msg (getField parentModel)
+    in
+        ( reduxor updatedKnobModel parentModel
+        , Cmd.map parentMsg knobCmd
+        )
 
 
 
