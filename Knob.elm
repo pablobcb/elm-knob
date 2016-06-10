@@ -26,7 +26,7 @@ create value min max step =
     { value = values
     , min = min
     , max = max
-    , step = 1
+    , step = step
     , yPos = 0
     }
 
