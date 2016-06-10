@@ -4,16 +4,19 @@ module Knob exposing (..)
 
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
+import Html.Attributes exposing (draggable, style)
+import Json.Decode as Json exposing (..)
 
 
 -- MODEL
 
 
 type alias Model =
-    { value : Float
-    , min : Float
-    , max : Float
-    , step : Float
+    { value : Int
+    , min : Int
+    , max : Int
+    , step : Int
+    , yPos : Int
     }
 
 
@@ -23,23 +26,47 @@ initialModel =
     , min = 0
     , max = 100
     , step = 1
+    , yPos = 0
     }
 
 
+type alias YPos =
+    Int
+
+
+type alias Value =
+    Int
+
+
 type Msg
-    = ValueChange (Float -> Cmd Msg)
+    = ValueChange (Value -> Cmd Msg) YPos
+    | MouseDrag YPos
+    | MouseDragStart YPos
+
+
+knobStyle : List ( String, String )
+knobStyle =
+    [ ( "-webkit-user-drag", "element" )
+    , ( "-webkit-user-select", "none" )
+    ]
 
 
 
 -- VIEW
 
 
-view : (Float -> Cmd Msg) -> Model -> Html Msg
+view : (Int -> Cmd Msg) -> Model -> Html Msg
 view cmdEmmiter model =
-    div []
-        [ div [] [ text (toString model.value) ]
-        , button [ onClick (ValueChange cmdEmmiter) ] [ Html.text "Click" ]
-        ]
+    let
+        positionMap msg =
+            Json.map (\posY -> msg posY) ("layerY" := int)
+    in
+        div
+            [ Html.Events.on "drag" <| positionMap <| ValueChange cmdEmmiter
+            , Html.Events.on "dragstart" <| positionMap MouseDragStart
+            , style knobStyle
+            ]
+            [ Html.text (toString model.value) ]
 
 
 
@@ -49,9 +76,26 @@ view cmdEmmiter model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        ValueChange cmdEmmiter ->
+        MouseDrag yPos ->
+            ( model, Cmd.none )
+
+        MouseDragStart yPos ->
+            ( { model | yPos = yPos }, Cmd.none )
+
+        ValueChange cmdEmmiter currentYPos ->
             let
+                op =
+                    if currentYPos < model.yPos then
+                        (+)
+                    else
+                        (-)
+
                 newValue =
-                    model.value + 1
+                    model.value `op` model.step
             in
-                ( { model | value = newValue }, cmdEmmiter newValue )
+                if newValue > model.max || newValue < model.min then
+                    ( model, Cmd.none )
+                else
+                    ( { model | value = newValue }
+                    , cmdEmmiter newValue
+                    )

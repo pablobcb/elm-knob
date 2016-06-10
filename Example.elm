@@ -68,7 +68,7 @@ subscriptions model =
     Sub.none
 
 
-port examplePort : Float -> Cmd msg
+port examplePort : Int -> Cmd msg
 
 
 
