@@ -21,11 +21,11 @@ type alias Model =
     }
 
 
-initialModel : Model
-initialModel =
-    { value = 50
-    , min = 0
-    , max = 100
+create : Int -> Int -> Int -> Int -> Model
+create value min max step =
+    { value = values
+    , min = min
+    , max = max
     , step = 1
     , yPos = 0
     }
@@ -109,14 +109,13 @@ update message model =
 
         ValueChange cmdEmmiter currentYPos ->
             let
-                op =
-                    if currentYPos < model.yPos then
-                        (+)
-                    else
-                        (-)
-
                 newValue =
-                    model.value `op` model.step
+                    if currentYPos < model.yPos then
+                        model.value + model.step
+                    else if currentYPos > model.yPos then
+                        model.value - model.step
+                    else
+                        model.value
             in
                 if newValue > model.max || newValue < model.min then
                     ( model, Cmd.none )

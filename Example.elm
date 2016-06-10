@@ -16,7 +16,7 @@ type alias AppModel =
 
 initialModel : AppModel
 initialModel =
-    { knobModel = Knob.initialModel }
+    { knobModel = Knob.create 0 -100 100 1 }
 
 
 init : ( AppModel, Cmd Msg )
